@@ -1,38 +1,47 @@
 package fi.tuni.tiko.objectorientedprogramming.JSONparser;
 
-public class Item<T, P> {
+import javax.persistence.*;
+@Entity
+public class Item {
+    @Id
+    // Classes must have some id
+    // IDENTIFY allow auto increment on demand in MySQL
+    //    PRIMARY KEY AUTOINCREMENT ...
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    private int id;
 
-    T tag;
-    P property;
+    String tag;
+    String property;
 
     public Item() {}
 
-    public Item(T tag, P property) {
+    public Item(String tag, String property) {
         this.tag = tag;
         this.property = property;
     }
 
-    public T getTag() {
+    public String getTag() {
         return tag;
     }
 
-    public void setTag(T tag) {
+    public void setTag(String tag) {
         this.tag = tag;
     }
 
-    public P getProperty() {
+    public String getProperty() {
         return property;
     }
 
-    public void setProperty(P property) {
+    public void setProperty(String property) {
         this.property = property;
     }
 
     @Override
     public String toString() {
         return "Item{" +
-                "tag=" + tag +
-                ", property=" + property +
+                "id=" + id +
+                ", tag='" + tag + '\'' +
+                ", property='" + property + '\'' +
                 '}';
     }
 }

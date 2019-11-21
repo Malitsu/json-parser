@@ -3,6 +3,6 @@ package fi.tuni.tiko.objectorientedprogramming.JSONparser;
 import org.springframework.data.repository.*;
 import java.util.*;
 
-public interface MyDatabaseConnection extends CrudRepository<Circle, Integer> {
-    List<Circle> findByRadiusOrderByIdDesc(double radius);
+public interface MyDatabaseConnection extends CrudRepository<Item, Integer> {
+    List<Item> findByTagOrderByIdDesc(String tag);
 }

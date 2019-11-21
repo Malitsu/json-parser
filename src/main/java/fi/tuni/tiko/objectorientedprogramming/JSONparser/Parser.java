@@ -7,23 +7,23 @@ import org.springframework.beans.factory.annotation.*;
 import org.springframework.transaction.annotation.*;
 
 @SpringBootApplication
-public class DemoApplication implements CommandLineRunner {
+public class Parser implements CommandLineRunner {
 
 	@Autowired
 	MyDatabaseConnection connection;
 
 	public static void main(String[] args) {
-		SpringApplication.run(DemoApplication.class, args);
+		SpringApplication.run(Parser.class, args);
 
 	}
 
 	@Transactional //
 	public void run(String[] args) throws Exception {
-		Circle c = new Circle();
-		c.setRadius(2);
 
-		connection.save(c);
-		connection.findByRadiusOrderByIdDesc(2)
+		Item item = new Item("apple juice","5 litres");
+
+		connection.save(item);
+		connection.findAll()
 					.forEach(System.out::println);
 	}
 

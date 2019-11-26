@@ -1,30 +1,40 @@
 package fi.tuni.tiko.objectorientedprogramming.JSONparser;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.beans.factory.annotation.*;
-import org.springframework.transaction.annotation.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.List;
 
-@SpringBootApplication
-public class Parser implements CommandLineRunner {
+public class Parser {
+    List<String> lines;
 
-	@Autowired
-	MyDatabaseConnection connection;
+    public Parser() {
+        lines = new LinkedList<>();
+        lines.add("{");
+        lines.add("}");
+    }
 
-	public static void main(String[] args) {
-		SpringApplication.run(Parser.class, args);
+    public void addItem(Item item) {
+        String newLine = "  \"" +item.getTag() +"\": \"" +item.getProperty() +"\",";
+        lines.add(lines.size()-1, newLine);
+    }
 
-	}
+    public void writeToFile() {
+        try {
+            Path file = Paths.get("save.json");
+            Files.write(file, lines, StandardCharsets.UTF_8);
+        } catch(Exception e) { e.printStackTrace(); }
+    }
 
-	@Transactional //
-	public void run(String[] args) throws Exception {
+    public void readFromFile(String filename) {
+        try {
+            lines = Files.readAllLines(Paths.get(filename), Charset.defaultCharset());
+        } catch(Exception e) { e.printStackTrace(); }
 
-		Item item = new Item("apple juice","5 litres");
+    }
 
-		connection.save(item);
-		connection.findAll()
-					.forEach(System.out::println);
-	}
 
 }

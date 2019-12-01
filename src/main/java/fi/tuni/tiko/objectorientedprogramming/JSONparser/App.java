@@ -3,8 +3,8 @@ package fi.tuni.tiko.objectorientedprogramming.JSONparser;
 import org.hibernate.*;
 import org.hibernate.cfg.*;
 
-public class Main {
-	public static void main(String [] args) {
+public class App {
+	public static void main(String[] args) {
 
 		// Create configuration object
 		Configuration cfg = new Configuration();
@@ -29,7 +29,7 @@ public class Main {
 		Transaction tx = session.beginTransaction();
 
 		// Create pojo
-		Item item = new Item();
+		Item item = new Item("apple juice", "5 liters");
 
 		// Save to database
 		session.persist(item);

@@ -51,6 +51,10 @@ public class Parser {
         return Optional.ofNullable(item);
     }
 
+    public Optional<List> returnAllItems() {
+        return Optional.ofNullable(items);
+    }
+
     public void readFromFile() {
         try {
             lines = Files.readAllLines(Paths.get(filename), Charset.defaultCharset());

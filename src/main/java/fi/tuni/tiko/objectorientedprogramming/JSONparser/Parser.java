@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class Parser {
@@ -33,12 +34,30 @@ public class Parser {
         } catch(Exception e) { e.printStackTrace(); }
     }
 
+    public boolean areMoreItems() {
+        return !items.isEmpty();
+    }
+
+    public Optional<Item> returnItem() {
+        Item item = null;
+        if (areMoreItems()) {
+            if (items.size() == 1) {
+                item = items.remove(0);
+            }
+            else {
+                item = items.remove(items.size() - 1);
+            }
+        }
+        return Optional.ofNullable(item);
+    }
+
     public void readFromFile() {
         try {
             lines = Files.readAllLines(Paths.get(filename), Charset.defaultCharset());
         } catch(Exception e) { e.printStackTrace(); }
         items = lines.stream()
-                .filter(line -> !line.endsWith("}") || !line.startsWith("{"))
+                .filter(line -> !"{".equals(line))
+                .filter(line -> !"}".equals(line))
                 .map(line -> line.replace("  \"", ""))
                 .map(line -> line.replace("\",", ""))
                 .map(line -> line.split("\":"))

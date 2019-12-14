@@ -62,9 +62,10 @@ public class Parser {
         items = lines.stream()
                 .filter(line -> !"{".equals(line))
                 .filter(line -> !"}".equals(line))
-                .map(line -> line.replace("  \"", ""))
-                .map(line -> line.replace("\",", ""))
-                .map(line -> line.split("\":"))
+                .map(line -> line.replace("  ", ""))
+                .map(line -> line.replace("\"",""))
+                .map(line -> line.replace(",",""))
+                .map(line -> line.split(": "))
                 .map(arr -> new Item(arr[0], arr[1]))
                 .collect(Collectors.toList());
     }

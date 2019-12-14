@@ -23,7 +23,12 @@ public class Parser {
     }
 
     public void addItem(Item item) {
-        String newLine = "  \"" +item.getTag() +"\": \"" +item.getProperty() +"\",";
+        if (lines.size() > 2) {
+            String last = lines.get(lines.size() - 2);
+            last = last + ",";
+            lines.set(lines.size() -2, last);
+        }
+        String newLine = "  \"" +item.getTag() +"\": \"" +item.getProperty() +"\"";
         lines.add(lines.size()-1, newLine);
     }
 

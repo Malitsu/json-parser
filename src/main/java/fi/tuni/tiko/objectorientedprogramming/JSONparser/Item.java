@@ -4,14 +4,10 @@ import javax.persistence.*;
 @Entity
 public class Item {
     @Id
-    // Classes must have some id
-    // IDENTIFY allow auto increment on demand in MySQL
-    //    PRIMARY KEY AUTOINCREMENT ...
+    public String tag;
+    public String property;
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     private int id;
-
-    String tag;
-    String property;
 
     public Item() {}
 

@@ -5,21 +5,67 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class Parser {
+public class Parser<T, P> {
     List<String> lines;
     List<Item> items;
     String filename;
 
     public Parser() {
-        lines = new LinkedList<>();
-        lines.add("{");
-        lines.add("}");
+        reset();
         filename = "save.json";
+    }
+
+    public Item createItem(T first, P second) {
+        Item item = new Item();
+        item.setTag(first.toString());
+        item.setProperty(second.toString());
+        return item;
+    }
+
+    public List<Item> createItems(HashMap<T, P> map) {
+        LinkedList<Item> list = new LinkedList<>();
+        for (T object: map.keySet()) {
+            Item item = new Item();
+            item.setTag(object.toString());
+            item.setProperty(map.get(object).toString());
+            list.add(item);
+        }
+        return list;
+    }
+
+    public String createJSONLine(Item item) {
+        String line = "  \"" +item.getTag() +"\": \"" +item.getProperty() +"\"";
+        return line;
+    }
+
+    public List<String> createJSONLines(HashMap<T, P> map) {
+        LinkedList<String> list = new LinkedList<>();
+        for (T object: map.keySet()) {
+            String line = "  \"" +object.toString() +"\": \"" +map.get(object).toString() +"\"";
+            list.add(line);
+        }
+        return list;
+    }
+
+    public List<String> createJSONLines(List<Item> items) {
+        LinkedList<String> list = new LinkedList<>();
+        for(Item item: items) {
+            list.add(createJSONLine(item));
+        }
+        return list;
+    }
+
+    public HashMap<String, String> convertToHashMap(List<Item> items) {
+        HashMap<String, String> map = new HashMap<>();
+        for(Item item: items) {
+            String first = item.getTag();
+            String second = item.getProperty();
+            map.put(first, second);
+        }
+        return map;
     }
 
     public void addItem(Item item) {
@@ -28,8 +74,19 @@ public class Parser {
             last = last + ",";
             lines.set(lines.size() -2, last);
         }
-        String newLine = "  \"" +item.getTag() +"\": \"" +item.getProperty() +"\"";
-        lines.add(lines.size()-1, newLine);
+        lines.add(lines.size()-1, createJSONLine(item));
+    }
+
+    public void addAll(HashMap<T, P> map) {
+        lines = createJSONLines(map);
+        lines.add(0, "{");
+        lines.add(lines.size(), "}");
+    }
+
+    public void addAllItems(List<Item> items) {
+        for(Item item: items) {
+            addItem(item);
+        }
     }
 
     public void writeToFile() {
@@ -37,6 +94,31 @@ public class Parser {
             Path file = Paths.get(filename);
             Files.write(file, lines, StandardCharsets.UTF_8);
         } catch(Exception e) { e.printStackTrace(); }
+    }
+
+    public void writeToFile(String filename) {
+        this.filename = filename;
+        writeToFile();
+    }
+
+    public void writeToFile(List<Item> items) {
+        addAllItems(items);
+        writeToFile();
+    }
+
+    public void writeToFile(List<Item> items, String filename) {
+        addAllItems(items);
+        writeToFile(filename);
+    }
+
+    public void writeToFile(HashMap<T, P> map) {
+        addAll(map);
+        writeToFile();
+    }
+
+    public void writeToFile(HashMap<T, P> map, String filename) {
+        addAll(map);
+        writeToFile(filename);
     }
 
     public boolean areMoreItems() {
@@ -73,6 +155,53 @@ public class Parser {
                 .map(line -> line.split(": "))
                 .map(arr -> new Item(arr[0], arr[1]))
                 .collect(Collectors.toList());
+    }
+
+    public void readFromFile(String filename) {
+        this.filename = filename;
+        readFromFile();
+    }
+
+    public void reset() {
+        lines = new LinkedList<>();
+        lines.add("{");
+        lines.add("}");
+        items.clear();
+    }
+
+    public List<Item> fileIntoItems(String filename) {
+        readFromFile(filename);
+        return items;
+    }
+
+    public List<String> fileIntoLines() {
+        try {
+            lines = Files.readAllLines(Paths.get(filename), Charset.defaultCharset());
+        } catch(Exception e) { e.printStackTrace(); }
+        return lines;
+    }
+
+    public List<String> fileIntoLines(String filename) {
+        this.filename = filename;
+        return fileIntoLines();
+    }
+
+    public String convertToJSON(List<Item> items) {
+        addAllItems(items);
+        return stringify();
+    }
+
+    public String convertToJSON(HashMap<T, P> map) {
+        addAll(map);
+        return stringify();
+    }
+
+    public String stringify() {
+        String answer = "";
+        for (String line: lines) {
+            answer = answer + line +"\n";
+        }
+        return answer;
     }
 
 }

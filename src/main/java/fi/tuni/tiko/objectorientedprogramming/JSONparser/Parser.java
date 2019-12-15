@@ -166,7 +166,7 @@ public class Parser<T, P> {
         lines = new LinkedList<>();
         lines.add("{");
         lines.add("}");
-        items.clear();
+        items = new LinkedList<>();
     }
 
     public List<Item> fileIntoItems(String filename) {
@@ -186,12 +186,12 @@ public class Parser<T, P> {
         return fileIntoLines();
     }
 
-    public String convertToJSON(List<Item> items) {
+    public String convertToJson(List<Item> items) {
         addAllItems(items);
         return stringify();
     }
 
-    public String convertToJSON(HashMap<T, P> map) {
+    public String convertToJson(HashMap<T, P> map) {
         addAll(map);
         return stringify();
     }
@@ -202,6 +202,34 @@ public class Parser<T, P> {
             answer = answer + line +"\n";
         }
         return answer;
+    }
+
+    public Item jsonToItem(String json) {
+        String[] arr = json.replace("{", "")
+                    .replace("}", "")
+                    .replace("\n", "")
+                    .replace("\"", "")
+                    .replace(",", "")
+                    .trim()
+                    .split(":  ");
+        Item item = new Item(arr[0], arr[1]);
+        return item;
+    }
+
+    public List<Item> jsonToItems(String json) {
+        try {
+            lines = Files.readAllLines(Paths.get(filename), Charset.defaultCharset());
+        } catch(Exception e) { e.printStackTrace(); }
+        items = lines.stream()
+                .filter(line -> !"{".equals(line))
+                .filter(line -> !"}".equals(line))
+                .map(line -> line.replace("  ", ""))
+                .map(line -> line.replace("\"",""))
+                .map(line -> line.replace(",",""))
+                .map(line -> line.split(": "))
+                .map(arr -> new Item(arr[0], arr[1]))
+                .collect(Collectors.toList());
+        return items;
     }
 
 }

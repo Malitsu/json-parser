@@ -3,11 +3,12 @@ package fi.tuni.tiko.objectorientedprogramming.JSONparser;
 import javax.persistence.*;
 @Entity
 public class Item {
+
     @Id
+    @GeneratedValue(strategy=GenerationType.SEQUENCE)
+    private int id;
     public String tag;
     public String property;
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
-    private int id;
 
     public Item() {}
 

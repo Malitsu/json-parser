@@ -16,11 +16,14 @@ public class App {
 		for (Item item: items) {
 			h2.saveItem(item);
 		}
-		List<Item> newItems = h2.fetchItems();
+		h2.close();
+
+		H2Connect h22 = new H2Connect();
+		List<Item> newItems = h22.fetchItems();
 		for(Item item: newItems) {
 			System.out.println(item);
 		}
 
-		h2.close();
+		h22.close();
 	}
 }

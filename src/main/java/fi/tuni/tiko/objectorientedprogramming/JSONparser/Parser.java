@@ -1,5 +1,6 @@
 package fi.tuni.tiko.objectorientedprogramming.JSONparser;
 
+import java.lang.reflect.Field;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -230,6 +231,21 @@ public class Parser<T, P> {
                 .map(arr -> new Item(arr[0], arr[1]))
                 .collect(Collectors.toList());
         return items;
+    }
+
+    public String parseToJson(Object object) {
+        Class<?> objClass = object.getClass();
+        Field[] fields = objClass.getFields();
+        String line = "{\n";
+        try {
+            for (Field field : fields) {
+                String tag = field.getName();
+                String value = field.get(object).toString();
+                line = line +"  \"" +tag + "\": \"" + value + "\",\n";
+            }
+        } catch (IllegalAccessException e) { e.printStackTrace(); }
+        line = line + "}";
+        return line;
     }
 
 }

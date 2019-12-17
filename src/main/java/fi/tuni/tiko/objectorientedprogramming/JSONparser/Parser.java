@@ -8,15 +8,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Optional;
 
 public class Parser<T, P> {
-    List<String> lines;
-    List<Item> items;
+    List<String> lines = new LinkedList<>();
+    List<Item> items = new LinkedList<>();
     String filename;
 
     public Parser() {
         reset();
-        filename = "save.json";
     }
 
     public Item createItem(T first, P second) {
@@ -26,24 +28,17 @@ public class Parser<T, P> {
         return item;
     }
 
-    public List<Item> createItems(HashMap<T, P> map) {
-        LinkedList<Item> list = new LinkedList<>();
-        for (T object: map.keySet()) {
-            Item item = new Item();
-            item.setTag(object.toString());
-            item.setProperty(map.get(object).toString());
-            list.add(item);
-        }
-        return list;
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
-    public String createJSONLine(Item item) {
+    public String createJsonLine(Item item) {
         String line = "  \"" +item.getTag() +"\": \"" +item.getProperty() +"\"";
         return line;
     }
 
-    public List<String> createJSONLines(HashMap<T, P> map) {
-        LinkedList<String> list = new LinkedList<>();
+    public List<String> createJsonLines(HashMap<T, P> map) {
+        LinkedList<String> list = new LinkedList<String>();
         for (T object: map.keySet()) {
             String line = "  \"" +object.toString() +"\": \"" +map.get(object).toString() +"\"";
             list.add(line);
@@ -51,22 +46,12 @@ public class Parser<T, P> {
         return list;
     }
 
-    public List<String> createJSONLines(List<Item> items) {
+    public List<String> convertItemsToJsonLines(List<Item> items) {
         LinkedList<String> list = new LinkedList<>();
         for(Item item: items) {
-            list.add(createJSONLine(item));
+            list.add(createJsonLine(item));
         }
         return list;
-    }
-
-    public HashMap<String, String> convertToHashMap(List<Item> items) {
-        HashMap<String, String> map = new HashMap<>();
-        for(Item item: items) {
-            String first = item.getTag();
-            String second = item.getProperty();
-            map.put(first, second);
-        }
-        return map;
     }
 
     public void addItem(Item item) {
@@ -75,13 +60,7 @@ public class Parser<T, P> {
             last = last + ",";
             lines.set(lines.size() -2, last);
         }
-        lines.add(lines.size()-1, createJSONLine(item));
-    }
-
-    public void addAll(HashMap<T, P> map) {
-        lines = createJSONLines(map);
-        lines.add(0, "{");
-        lines.add(lines.size(), "}");
+        lines.add(lines.size()-1, createJsonLine(item));
     }
 
     public void addAllItems(List<Item> items) {
@@ -98,27 +77,17 @@ public class Parser<T, P> {
     }
 
     public void writeToFile(String filename) {
-        this.filename = filename;
+        setFilename(filename);
         writeToFile();
     }
 
-    public void writeToFile(List<Item> items) {
+    public void writeItemsToFile(List<Item> items) {
         addAllItems(items);
         writeToFile();
     }
 
-    public void writeToFile(List<Item> items, String filename) {
+    public void writeItemsToFile(List<Item> items, String filename) {
         addAllItems(items);
-        writeToFile(filename);
-    }
-
-    public void writeToFile(HashMap<T, P> map) {
-        addAll(map);
-        writeToFile();
-    }
-
-    public void writeToFile(HashMap<T, P> map, String filename) {
-        addAll(map);
         writeToFile(filename);
     }
 
@@ -159,15 +128,16 @@ public class Parser<T, P> {
     }
 
     public void readFromFile(String filename) {
-        this.filename = filename;
+        setFilename(filename);
         readFromFile();
     }
 
     public void reset() {
-        lines = new LinkedList<>();
+        lines = new LinkedList<String>();
         lines.add("{");
         lines.add("}");
         items = new LinkedList<>();
+        filename = "save.json";
     }
 
     public List<Item> fileIntoItems(String filename) {
@@ -183,7 +153,7 @@ public class Parser<T, P> {
     }
 
     public List<String> fileIntoLines(String filename) {
-        this.filename = filename;
+        setFilename(filename);
         return fileIntoLines();
     }
 
@@ -192,16 +162,12 @@ public class Parser<T, P> {
         return stringify();
     }
 
-    public String convertToJson(HashMap<T, P> map) {
-        addAll(map);
-        return stringify();
-    }
-
     public String stringify() {
         String answer = "";
         for (String line: lines) {
             answer = answer + line +"\n";
         }
+        answer = answer.substring(0, answer.length()-1);
         return answer;
     }
 
@@ -211,8 +177,8 @@ public class Parser<T, P> {
                     .replace("\n", "")
                     .replace("\"", "")
                     .replace(",", "")
-                    .trim()
-                    .split(":  ");
+                    .replace(" ", "")
+                    .split(":");
         Item item = new Item(arr[0], arr[1]);
         return item;
     }
@@ -233,19 +199,53 @@ public class Parser<T, P> {
         return items;
     }
 
-    public String parseToJson(Object object) {
+    public String createJsonLine(Object object) {
         Class<?> objClass = object.getClass();
         Field[] fields = objClass.getFields();
-        String line = "{\n";
+        String line = "  {\n";
         try {
             for (Field field : fields) {
                 String tag = field.getName();
                 String value = field.get(object).toString();
-                line = line +"  \"" +tag + "\": \"" + value + "\",\n";
+                line = line +"    \"" +tag + "\": \"" + value + "\",\n";
             }
         } catch (IllegalAccessException e) { e.printStackTrace(); }
-        line = line + "}";
+        line = line.substring(0, line.length()-2);
+        line = line + "  \n  }";
         return line;
+    }
+
+    public String createJsonLines(List<Object> objects) {
+        addObjects(objects);
+        return stringify();
+    }
+
+    public void addObject(Object object) {
+        if (lines.size() > 2) {
+            String last = lines.get(lines.size() - 2);
+            last = last + ",";
+            lines.set(lines.size() -2, last);
+        }
+        lines.add(lines.size()-1, createJsonLine(object));
+    }
+
+    public void addObjects(List<Object> objects) {
+        lines = new LinkedList<String>();
+        lines.add("[");
+        lines.add("]");
+        for (Object object: objects) {
+            addObject(object);
+        }
+    }
+
+    public void writeToFile(List<Object> objects) {
+        addObjects(objects);
+        writeToFile();
+    }
+
+    public void writeToFile(List<Object> objects, String filename) {
+        addObjects(objects);
+        writeToFile(filename);
     }
 
 }

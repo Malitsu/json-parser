@@ -54,6 +54,29 @@ public class H2Connect {
         return list;
     }
 
+    public void removeItem(Item item) {
+        Session session = factory.openSession();
+        session.beginTransaction();
+        session.delete(item);
+        session.getTransaction().commit();
+        session.close();
+    }
+
+
+    public void removeItems(List<Item> items) {
+        Session session = factory.openSession();
+        session.beginTransaction();
+        for(Item item: items) {
+            session.delete(item);
+        }
+        session.getTransaction().commit();
+        session.close();
+    }
+
+    public void removeAll() {
+        removeItems(fetchItems());
+    }
+
     public void close() {
         factory.close();
     }

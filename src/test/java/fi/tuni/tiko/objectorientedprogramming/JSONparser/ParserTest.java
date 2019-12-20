@@ -1,16 +1,7 @@
 package fi.tuni.tiko.objectorientedprogramming.JSONparser;
 
-import org.h2.store.fs.FileUtils;
 import org.junit.Test;
 import org.junit.Assert;
-import org.junit.jupiter.api.*;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 public class ParserTest {
@@ -65,14 +56,6 @@ public class ParserTest {
 		items.add(new Item("bread", "bag"));
 		parser.addAllItems(items);
 		Assert.assertTrue(parser.lines.get(1).equals(jsonLineItem +","));
-
-		/*parser.reset();
-		objects = new LinkedList<>();
-		objects.add(new JavaObject("apples", "5"));
-		objects.add(javaobject);
-		objects.add(item);
-		parser.addAll(objects);
-		Assert.assertTrue(parser.lines.get(1).equals(jsonLineObject +",")); */
 	}
 
 	@Test
@@ -189,19 +172,6 @@ public class ParserTest {
 		item = new Item("apples", "5");
 		jsonLineItem = "  \"apples\": \"5\"";
 		Assert.assertEquals(parser.jsonToItem(jsonLineItem).toString(), item.toString());
-	}
-
-	@Test
-	public void testJsonToItems() {
-		parser.reset();
-		String jsonString = "{\n" +
-				"  \"apples\": \"5\",\n" +
-				"  \"cheese\": \"block\",\n" +
-				"  \"juice\": \"1 l\",\n" +
-				"  \"bread\": \"bag\"\n" +
-				"}";
-		items = parser.jsonToItems(jsonString);
-		Assert.assertTrue(items.size() == 4);
 	}
 
 	@Test

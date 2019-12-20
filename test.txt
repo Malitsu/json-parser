@@ -1,0 +1,6 @@
+{
+  "apples": "5",
+  "cheese": "block",
+  "juice": "1 l",
+  "bread": "bag"
+}
